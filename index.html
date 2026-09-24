@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manjaro Task Manager</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%2335b37e%22/></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: '#1b1f22',
+          surface: '#22272b',
+          surfacealt: '#2a3034',
+          border: '#33393d',
+          primary: '#eef1f2',
+          secondary: '#9aa4a9',
+          accent: '#35b37e',
+          accenthover: '#2f9e6f',
+          warn: '#e0a63e',
+          danger: '#e0563e',
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+          body: ['Inter', 'system-ui', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        },
+      },
+    },
+  }
+</script>
+
+<style>
+  :root {
+    --bg: #1b1f22;
+    --surface: #22272b;
+    --surface-alt: #2a3034;
+    --border: #33393d;
+    --text-primary: #eef1f2;
+    --text-secondary: #9aa4a9;
+    --accent: #35b37e;
+    color-scheme: dark;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing: border-box;
+  }
+  html { scroll-padding-top: 88px; scroll-behavior: smooth; }
+  body { background: var(--bg); }
+
+  .nav-sticky { top: env(safe-area-inset-top, 0px); }
+
+  .grain {
+    background-image: radial-gradient(rgba(238,241,242,0.035) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  .glow {
+    background: radial-gradient(600px circle at 50% 0%, rgba(53,179,126,0.16), transparent 60%);
+  }
+
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; }
+
+  .copy-btn:active { transform: scale(0.96); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body class="font-body text-primary antialiased">
+
+<!-- ============ NAV ============ -->
+<nav class="sticky nav-sticky z-50 border-b border-border/80 bg-bg/85 backdrop-blur-md">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-2.5 shrink-0">
+      <svg width="26" height="26" viewBox="0 0 128 128" fill="none">
+        <rect x="4" y="4" width="120" height="120" rx="26" fill="#35b37e"/>
+        <rect x="24" y="30" width="16" height="68" rx="4" fill="#fff" opacity="0.95"/>
+        <rect x="50" y="30" width="16" height="68" rx="4" fill="#fff" opacity="0.75"/>
+        <rect x="76" y="30" width="16" height="68" rx="4" fill="#fff" opacity="0.55"/>
+      </svg>
+      <span class="font-display font-semibold text-[15px] tracking-tight">Manjaro Task Manager</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8 text-sm text-secondary">
+      <a href="#features" class="hover:text-primary transition-colors">Features</a>
+      <a href="#preview" class="hover:text-primary transition-colors">Live preview</a>
+      <a href="#download" class="hover:text-primary transition-colors">Download</a>
+      <a href="https://github.com/Takiblu/task-manager" class="hover:text-primary transition-colors">Source</a>
+    </div>
+    <a href="#download" class="bg-accent hover:bg-accenthover text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+      Download
+    </a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header id="top" class="relative overflow-hidden grain glow border-b border-border">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 pt-16 pb-20 md:pt-24 md:pb-28 grid lg:grid-cols-[1.05fr_0.95fr] gap-14 items-center">
+
+    <!-- Left: copy -->
+    <div>
+      <div class="inline-flex items-center gap-2 text-xs text-secondary bg-surface border border-border rounded-full px-3 py-1.5 mb-7">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+        Built for Arch Linux and Manjaro
+      </div>
+
+      <h1 class="font-display font-semibold text-[2.6rem] md:text-[3.4rem] leading-[1.08] tracking-tight text-primary mb-6">
+        Every process, every resource,
+        <br class="hidden md:block">
+        one clean window.
+      </h1>
+
+      <p class="text-secondary text-lg leading-relaxed max-w-lg mb-9">
+        Monitor CPU, memory, GPU and network in real time, manage processes and services
+        safely, and end unresponsive apps without ever needing root — all in an interface
+        inspired by Manjaro.
+      </p>
+
+      <div class="flex flex-wrap items-center gap-3 mb-10">
+        <a href="#download" class="inline-flex items-center gap-2 bg-accent hover:bg-accenthover text-white font-medium px-5 py-3 rounded-xl transition-colors">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+          Download for Linux
+        </a>
+        <a href="#download" class="inline-flex items-center gap-2 border border-border hover:border-secondary text-primary font-medium px-5 py-3 rounded-xl transition-colors">
+          Arch package (PKGBUILD)
+        </a>
+      </div>
+
+      <div class="flex items-center gap-6 text-sm text-secondary">
+        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent"></span>Open source · GPLv3</span>
+        <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-accent"></span>Never runs as root</span>
+      </div>
+    </div>
+
+    <!-- Right: live demo -->
+    <div class="relative">
+      <div class="bg-surface border border-border rounded-2xl p-5 shadow-2xl shadow-black/40">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-danger/70"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-warn/70"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-accent/70"></span>
+          </div>
+          <span class="text-xs text-secondary font-mono">overview — live</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-3">
+          <!-- CPU card -->
+          <div class="bg-surfacealt border border-border rounded-xl p-3.5">
+            <p class="text-[11px] uppercase tracking-wide text-secondary mb-1">CPU</p>
+            <p id="cpuVal" class="font-mono text-2xl font-semibold text-primary mb-2">—%</p>
+            <svg id="cpuChart" viewBox="0 0 200 46" class="w-full h-11" preserveAspectRatio="none">
+              <polyline id="cpuLine" fill="none" stroke="#35b37e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points=""/>
+            </svg>
+          </div>
+          <!-- Memory card -->
+          <div class="bg-surfacealt border border-border rounded-xl p-3.5">
+            <p class="text-[11px] uppercase tracking-wide text-secondary mb-1">Memory</p>
+            <p id="memVal" class="font-mono text-2xl font-semibold text-primary mb-2">— GB</p>
+            <div class="w-full h-2 rounded-full bg-border overflow-hidden">
+              <div id="memBar" class="h-full bg-accent rounded-full transition-all duration-700" style="width:0%"></div>
+            </div>
+            <p id="memPct" class="text-[11px] text-secondary mt-2 font-mono">—</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="bg-surfacealt border border-border rounded-xl p-3.5">
+            <p class="text-[11px] uppercase tracking-wide text-secondary mb-1">Network</p>
+            <p id="netVal" class="font-mono text-lg font-semibold text-primary">↓ — Mbps</p>
+          </div>
+          <div class="bg-surfacealt border border-border rounded-xl p-3.5">
+            <p class="text-[11px] uppercase tracking-wide text-secondary mb-1">Disk</p>
+            <p id="diskVal" class="font-mono text-lg font-semibold text-primary">R — MB/s</p>
+          </div>
+        </div>
+
+        <!-- mini process rows -->
+        <div class="border border-border rounded-xl overflow-hidden">
+          <div class="grid grid-cols-[1fr_auto_auto] gap-2 px-3 py-2 bg-surfacealt text-[11px] text-secondary border-b border-border">
+            <span>Process</span><span>CPU</span><span>RAM</span>
+          </div>
+          <div id="procRows" class="divide-y divide-border font-mono text-[12.5px]"></div>
+        </div>
+      </div>
+      <div class="absolute -z-10 inset-0 blur-3xl opacity-30 bg-accent/40 rounded-full scale-90 translate-y-6"></div>
+    </div>
+
+  </div>
+</header>
+
+<!-- ============ FEATURES ============ -->
+<section id="features" class="max-w-6xl mx-auto px-5 md:px-8 py-20 md:py-28">
+  <div class="max-w-xl mb-14">
+    <h2 class="font-display font-semibold text-3xl md:text-4xl tracking-tight mb-4">Every page has one clear job</h2>
+    <p class="text-secondary text-lg leading-relaxed">Eight pages, each built around a task you actually need day to day — not decorative menus.</p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+    <div class="bg-surface border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors">
+      <svg class="text-accent mb-3" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      <h3 class="font-semibold text-primary mb-1.5">Overview</h3>
+      <p class="text-sm text-secondary leading-relaxed">CPU, memory, GPU, disk and network — one glance, updated in real time.</p>
+    </div>
+
+    <div class="bg-surface border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors">
+      <svg class="text-accent mb-3" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      <h3 class="font-semibold text-primary mb-1.5">Processes</h3>
+      <p class="text-sm text-secondary leading-relaxed">Search and sort, safe End Task, Force Kill, and full process-tree termination.</p>
+    </div>
+
+    <div class="bg-surface border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors">
+      <svg class="text-accent mb-3" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l5-6 4 4 8-9"/></svg>
+      <h3 class="font-semibold text-primary mb-1.5">Performance</h3>
+      <p class="text-sm text-secondary leading-relaxed">Lightweight live charts for CPU that don't eat the resources they're measuring.</p>
+    </div>
+
+    <div class="bg-surface border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors">
+      <svg class="text-accent mb-3" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/></svg>
+      <h3 class="font-semibold text-primary mb-1.5">Services</h3>
+      <p class="text-sm text-secondary leading-relaxed">Start, stop, enable and disable systemd services straight from the UI.</p>
+    </div>
+
+    <div class="bg-surface border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors">
+      <svg class="text-accent mb-3" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12l5 5L20 7"/></svg>
+      <h3 class="font-semibold text-primary mb-1.5">Startup Apps</h3>
+      <p class="text-sm text-secondary leading-relaxed">Full control over what launches automatically when you log in.</p>
+    </div>
+
+    <div class="bg-surface border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors">
+      <svg class="text-accent mb-3" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="18" cy="9" r="2.4"/><path d="M15 20c0-2.5 1.8-4.6 4.2-5"/></svg>
+      <h3 class="font-semibold text-primary mb-1.5">Users</h3>
+      <p class="text-sm text-secondary leading-relaxed">See who's currently logged in and how much of the system each one is using.</p>
+    </div>
+
+    <div class="bg-surface border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors">
+      <svg class="text-accent mb-3" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+      <h3 class="font-semibold text-primary mb-1.5">System</h3>
+      <p class="text-sm text-secondary leading-relaxed">Full distro, kernel, hardware, and display-server (Wayland/X11) details in one place.</p>
+    </div>
+
+    <div class="bg-surface border border-border rounded-2xl p-5 hover:border-accent/40 transition-colors">
+      <svg class="text-accent mb-3" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1h.1a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+      <h3 class="font-semibold text-primary mb-1.5">Settings</h3>
+      <p class="text-sm text-secondary leading-relaxed">Update speed, confirmation prompts, notifications, and appearance — all tunable.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ PREVIEW STRIP ============ -->
+<section id="preview" class="border-y border-border bg-surface/40">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 py-16 grid md:grid-cols-3 gap-8">
+    <div>
+      <p class="font-mono text-accent text-sm mb-2">≤ 1%</p>
+      <p class="text-primary font-medium mb-1">Light on CPU</p>
+      <p class="text-sm text-secondary leading-relaxed">Monitoring runs on its own thread, so the app never becomes the reason your system slows down.</p>
+    </div>
+    <div>
+      <p class="font-mono text-accent text-sm mb-2">SIGTERM → SIGKILL</p>
+      <p class="text-primary font-medium mb-1">Staged, safe termination</p>
+      <p class="text-sm text-secondary leading-relaxed">Tries a graceful exit first, and only offers Force Kill if the app doesn't respond in time.</p>
+    </div>
+    <div>
+      <p class="font-mono text-accent text-sm mb-2">polkit</p>
+      <p class="text-primary font-medium mb-1">Permissions only when needed</p>
+      <p class="text-sm text-secondary leading-relaxed">Never runs as root — elevated actions prompt through polkit, only at the moment they're actually required.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DOWNLOAD ============ -->
+<section id="download" class="max-w-6xl mx-auto px-5 md:px-8 py-20 md:py-28">
+  <div class="max-w-xl mb-14">
+    <h2 class="font-display font-semibold text-3xl md:text-4xl tracking-tight mb-4">Download it the way that fits your system</h2>
+    <p class="text-secondary text-lg leading-relaxed">Three ways in, depending on your distro and how much control you want.</p>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-5">
+
+    <!-- AppImage -->
+    <div class="bg-surface border border-accent/30 rounded-2xl p-6 flex flex-col">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-display font-semibold text-lg">AppImage</h3>
+        <span class="text-[11px] bg-accent/15 text-accent px-2 py-1 rounded-full">Recommended</span>
+      </div>
+      <p class="text-sm text-secondary leading-relaxed mb-5 flex-1">
+        A single file that runs on almost any Linux distribution, no install and no package manager needed. Perfect if you just want to try it out.
+      </p>
+      <a href="https://github.com/Takiblu/task-manager/releases/tag/v1.0.0-on-publish"
+         class="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accenthover text-white font-medium px-4 py-2.5 rounded-xl transition-colors mb-3">
+        Download AppImage
+      </a>
+      <div class="bg-bg border border-border rounded-lg px-3 py-2.5 flex items-center justify-between gap-2">
+        <code class="font-mono text-xs text-secondary truncate">chmod +x *.AppImage &amp;&amp; ./*.AppImage</code>
+        <button onclick="copyText(this, 'chmod +x manjaro-task-manager-x86_64.AppImage && ./manjaro-task-manager-x86_64.AppImage')"
+                class="copy-btn shrink-0 text-secondary hover:text-accent transition-colors" aria-label="Copy command">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Arch package -->
+    <div class="bg-surface border border-border rounded-2xl p-6 flex flex-col">
+      <h3 class="font-display font-semibold text-lg mb-4">Arch / Manjaro</h3>
+      <p class="text-sm text-secondary leading-relaxed mb-5 flex-1">
+        The official PKGBUILD package — installs the app, icon, and desktop entry in one command.
+      </p>
+      <div class="bg-bg border border-border rounded-lg px-3 py-2.5 flex items-center justify-between gap-2 mb-3">
+        <code class="font-mono text-xs text-secondary">git clone …&amp;&amp; makepkg -si</code>
+        <button onclick="copyText(this, 'git clone https://github.com/Takiblu/task-manager.git && cd task-manager && makepkg -si')"
+                class="copy-btn shrink-0 text-secondary hover:text-accent transition-colors" aria-label="Copy command">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        </button>
+      </div>
+      <a href="https://github.com/Takiblu/task-manager" class="inline-flex items-center justify-center gap-2 border border-border hover:border-accent/50 text-primary font-medium px-4 py-2.5 rounded-xl transition-colors">
+        View the repo on GitHub
+      </a>
+    </div>
+
+    <!-- From source -->
+    <div class="bg-surface border border-border rounded-2xl p-6 flex flex-col">
+      <h3 class="font-display font-semibold text-lg mb-4">From source</h3>
+      <p class="text-sm text-secondary leading-relaxed mb-5 flex-1">
+        For any other distribution, or if you want to build on top of it. Just needs Python 3.10+.
+      </p>
+      <div class="bg-bg border border-border rounded-lg px-3 py-2.5 flex items-center justify-between gap-2">
+        <code class="font-mono text-xs text-secondary truncate">pip install -r requirements.txt</code>
+        <button onclick="copyText(this, 'pip install -r requirements.txt && python3 src/main.py')"
+                class="copy-btn shrink-0 text-secondary hover:text-accent transition-colors" aria-label="Copy command">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="text-xs text-secondary mt-6">GPL-3.0-or-later · x86_64 · No root required to run</p>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="border-t border-border">
+  <div class="max-w-6xl mx-auto px-5 md:px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-secondary">
+    <div class="flex items-center gap-2">
+      <svg width="18" height="18" viewBox="0 0 128 128" fill="none">
+        <rect x="4" y="4" width="120" height="120" rx="26" fill="#35b37e"/>
+        <rect x="24" y="30" width="16" height="68" rx="4" fill="#fff" opacity="0.95"/>
+        <rect x="50" y="30" width="16" height="68" rx="4" fill="#fff" opacity="0.75"/>
+        <rect x="76" y="30" width="16" height="68" rx="4" fill="#fff" opacity="0.55"/>
+      </svg>
+      <span>Manjaro Task Manager</span>
+    </div>
+    <div class="flex items-center gap-6">
+      <a href="https://github.com/Takiblu/task-manager" class="hover:text-primary transition-colors">GitHub</a>
+      <a href="https://github.com/Takiblu/task-manager/issues" class="hover:text-primary transition-colors">Report an issue</a>
+      <span>Not affiliated with the official Manjaro project</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---- Live demo simulation (random-walk, purely client-side) ----
+  let cpu = 28, mem = 41, net = 12, disk = 35;
+  const cpuHistory = Array(40).fill(28);
+  const procNames = ['firefox', 'code', 'plasmashell', 'kwin_wayland', 'discord'];
+
+  function walk(value, min, max, step) {
+    value += (Math.random() - 0.5) * step;
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function renderProcRows() {
+    const container = document.getElementById('procRows');
+    container.innerHTML = procNames.map(name => {
+      const c = (Math.random() * 18 + 1).toFixed(1);
+      const r = (Math.random() * 9 + 1).toFixed(1);
+      return `<div class="grid grid-cols-[1fr_auto_auto] gap-2 px-3 py-1.5 text-secondary">
+        <span class="text-primary truncate">${name}</span>
+        <span class="w-10 text-right">${c}%</span>
+        <span class="w-10 text-right">${r}%</span>
+      </div>`;
+    }).join('');
+  }
+
+  function tick() {
+    cpu = walk(cpu, 8, 82, 14);
+    mem = walk(mem, 30, 68, 4);
+    net = walk(net, 2, 45, 10);
+    disk = walk(disk, 5, 90, 18);
+
+    cpuHistory.shift();
+    cpuHistory.push(cpu);
+
+    document.getElementById('cpuVal').textContent = Math.round(cpu) + '%';
+    document.getElementById('memVal').textContent = (mem / 100 * 32).toFixed(1) + ' GB';
+    document.getElementById('memPct').textContent = Math.round(mem) + '% of 32 GB';
+    document.getElementById('memBar').style.width = mem + '%';
+    document.getElementById('netVal').textContent = '↓ ' + net.toFixed(1) + ' Mbps';
+    document.getElementById('diskVal').textContent = 'R ' + disk.toFixed(0) + ' MB/s';
+
+    const points = cpuHistory.map((v, i) => {
+      const x = (i / (cpuHistory.length - 1)) * 200;
+      const y = 46 - (v / 100) * 46;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    document.getElementById('cpuLine').setAttribute('points', points);
+  }
+
+  renderProcRows();
+  tick();
+  setInterval(tick, 1400);
+  setInterval(renderProcRows, 2800);
+
+  function copyText(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      const original = btn.innerHTML;
+      btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#35b37e" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+      setTimeout(() => { btn.innerHTML = original; }, 1400);
+    }).catch(() => {});
+  }
+</script>
+
+</body>
+</html>
